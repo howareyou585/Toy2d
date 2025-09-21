@@ -1,14 +1,22 @@
-macro(CopyDLL target_name)
-    if (WIN32)
-        add_custom_command(
-            TARGET ${target_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_ROOT}/lib/x64/SDL2.dll $<TARGET_FILE_DIR:${target_name}>)
-        # If you have selected SDL2 component when installed Vulkan SDK, the command as follows will work
-        # add_custom_command(
-        #     TARGET ${target_name} POST_BUILD
-        #     COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BIN_DIR}/SDL2.dll $<TARGET_FILE_DIR:${target_name}>)
-    endif()
-endmacro(CopyDLL)
+# macro(CopyDLL target_name)
+#     add_custom_command(
+#             TARGET ${target_name} POST_BUILD
+#             COMMAND ${CMAKE_COMMAND} -E copy ../3rd_party/SDL2/lib/x64/libSDL2.a $<TARGET_FILE_DIR:${target_name}>)
+#         # If you have selected SDL2 component when installed Vulkan SDK, the command as follows will work
+#         # add_custom_command(
+#         #     TARGET ${target_name} POST_BUILD
+#         #     COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BIN_DIR}/SDL2.dll $<TARGET_FILE_DIR:${target_name}>)
+#     #if (WIN32)
+#         #add_custom_command(
+#             #TARGET ${target_name} POST_BUILD
+#             #COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_ROOT}/lib/x64/SDL2.dll $<TARGET_FILE_DIR:${target_name}>)
+#             #COMMAND ${CMAKE_COMMAND} -E copy  ../3rd_party/SDL2/lib/x64/libSDL2.a $<TARGET_FILE_DIR:${target_name}>)
+#         # If you have selected SDL2 component when installed Vulkan SDK, the command as follows will work
+#         # add_custom_command(
+#         #     TARGET ${target_name} POST_BUILD
+#         #     COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BIN_DIR}/SDL2.dll $<TARGET_FILE_DIR:${target_name}>)
+#     #endif()
+# endmacro(CopyDLL)
 
 macro(CopyShader target_name)
     add_custom_command(
