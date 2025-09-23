@@ -25,15 +25,15 @@ int main(int argc, char** argv) {
         exit(2);
     }
 
-    unsigned int count;
+   /* unsigned int count;
     SDL_Vulkan_GetInstanceExtensions(window, &count, nullptr);
     std::vector<const char*> extensions(count);
-    SDL_Vulkan_GetInstanceExtensions(window, &count, extensions.data());
+    SDL_Vulkan_GetInstanceExtensions(window, &count, extensions.data());*/
 
 #ifdef __APPLE__
     extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
-
+    toy2d::Init();
     // toy2d::Init(extensions,
     //     [&](VkInstance instance){
     //         VkSurfaceKHR surface;
@@ -42,39 +42,39 @@ int main(int argc, char** argv) {
     //     }, 1024, 720);
     // auto renderer = toy2d::GetRenderer();
 
-    // bool shouldClose = false;
-    // SDL_Event event;
+     bool shouldClose = false;
+     SDL_Event event;
 
     // float x = 100, y = 100;
 
     // toy2d::Texture* texture1 = toy2d::LoadTexture("resources/role.png");
     // toy2d::Texture* texture2 = toy2d::LoadTexture("resources/texture.jpg");
 
-    // while (!shouldClose) {
-    //     while (SDL_PollEvent(&event)) {
-    //         if (event.type == SDL_QUIT) {
-    //             shouldClose = true;
-    //         }
-    //         if (event.type == SDL_KEYDOWN) {
-    //             if (event.key.keysym.sym == SDLK_a) {
-    //                 x -= 10;
-    //             }
-    //             if (event.key.keysym.sym == SDLK_d) {
-    //                 x += 10;
-    //             }
-    //             if (event.key.keysym.sym == SDLK_w) {
-    //                 y -= 10;
-    //             }
-    //             if (event.key.keysym.sym == SDLK_s) {
-    //                 y += 10;
-    //             }
-    //         }
-    //         if (event.type == SDL_WINDOWEVENT) {
-    //             if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-	// 				toy2d::ResizeSwapchainImage(event.window.data1, event.window.data2);
-    //             }
-    //         }
-    //     }
+     while (!shouldClose) {
+         while (SDL_PollEvent(&event)) {
+             if (event.type == SDL_QUIT) {
+                 shouldClose = true;
+             }
+             /*if (event.type == SDL_KEYDOWN) {
+                 if (event.key.keysym.sym == SDLK_a) {
+                     x -= 10;
+                 }
+                 if (event.key.keysym.sym == SDLK_d) {
+                     x += 10;
+                 }
+                 if (event.key.keysym.sym == SDLK_w) {
+                     y -= 10;
+                 }
+                 if (event.key.keysym.sym == SDLK_s) {
+                     y += 10;
+                 }
+             }
+             if (event.type == SDL_WINDOWEVENT) {
+                 if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+	 				toy2d::ResizeSwapchainImage(event.window.data1, event.window.data2);
+                 }*/
+             }
+         }
 
 	// 	renderer->StartRender();
     //     renderer->SetDrawColor(toy2d::Color{1, 0, 0});

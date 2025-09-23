@@ -23,8 +23,10 @@ namespace toy2d
         vk::InstanceCreateInfo insCreateInfo;
         vk::ApplicationInfo appInfo;
         //appInfo.setAppVersion(VK_API_VERSION_1_3);
-        appInfo.setApplicationVersion(VK_API_VERSION_1_3);
+        appInfo.setApiVersion(VK_API_VERSION_1_3);
         insCreateInfo.setPApplicationInfo(&appInfo);
+        std::vector<const char*> layers = { "VK_LAYER_KHRONOS_validation" };
+        insCreateInfo.setPEnabledLayerNames(layers);
         this->_instance = vk::createInstance(insCreateInfo);
     }
 }

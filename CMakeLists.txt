@@ -30,7 +30,7 @@ target_include_directories(toy2d PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(toy2d PUBLIC ./3rd_party/SDL2/include)
 #添加第三方链接库SDL2
 target_link_directories(toy2d PUBLIC ./3rd_party/SDL2/lib/x64)
-target_link_libraries(toy2d PUBLIC mingw32)
+#target_link_libraries(toy2d PUBLIC mingw32)
 target_link_libraries(toy2d PUBLIC SDL2main)
 target_link_libraries(toy2d PUBLIC SDL2)
 target_link_libraries(toy2d PUBLIC Vulkan::Vulkan)
