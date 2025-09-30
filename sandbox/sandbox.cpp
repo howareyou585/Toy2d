@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "SDL_vulkan.h"
 #include <SDL_video.h>
+#include <iostream>
 
 // If you have selected SDL2 component when installed Vulkan SDK
 // The following codes will work
@@ -25,15 +26,27 @@ int main(int argc, char** argv) {
         exit(2);
     }
 
-   /* unsigned int count;
+
+    unsigned int count = 0;
     SDL_Vulkan_GetInstanceExtensions(window, &count, nullptr);
     std::vector<const char*> extensions(count);
-    SDL_Vulkan_GetInstanceExtensions(window, &count, extensions.data());*/
+    SDL_Vulkan_GetInstanceExtensions(window, &count, extensions.data());
 
+
+   
 #ifdef __APPLE__
     extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
-    toy2d::Init();
+
+    
+    toy2d::Init(extensions, [&](VkInstance instance) {
+        VkSurfaceKHR surface;
+        if(!SDL_Vulkan_CreateSurface(window,instance,&surface))
+        {
+            throw std::runtime_error("can't create surface!");
+        }
+        return surface;
+        },WindowWidth,WindowHeight);
     // toy2d::Init(extensions,
     //     [&](VkInstance instance){
     //         VkSurfaceKHR surface;

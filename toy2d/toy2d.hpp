@@ -1,6 +1,8 @@
 #pragma once
 #include "vulkan/vulkan.hpp"
+#include "context.hpp"
 namespace toy2d{
-    void Init();
+
+    void Init(const std::vector<const char*>& extensions, Context::GetSurfaceCallBack, int w, int h);
     void Quit();
 }

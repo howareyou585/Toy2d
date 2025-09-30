@@ -1,2 +1,5 @@
 /3rd_party
 build
+/build1/.cmake/api/v1/reply
+/build1
+/build_x64
