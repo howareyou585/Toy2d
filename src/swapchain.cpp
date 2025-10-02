@@ -31,9 +31,15 @@ namespace toy2d
                 .setImageSharingMode(vk::SharingMode::eConcurrent);
         }
         this->m_swapChain = Context::GetInstance()._device.createSwapchainKHR(createInfo);
+        GetImages();
+        CreateImageViews();
     }
     SwapChain::~SwapChain()
     {
+        for (auto i = 0; i < m_imageViews.size(); i++)
+        {
+            Context::GetInstance()._device.destroyImageView(m_imageViews[i]);
+        }
         Context::GetInstance()._device.destroySwapchainKHR(m_swapChain);
     }
 
@@ -69,5 +75,35 @@ namespace toy2d
         
             }
         }
+    }
+
+    void SwapChain::GetImages()
+    {
+       m_images = Context::GetInstance()._device.getSwapchainImagesKHR(m_swapChain);
+    }
+    void SwapChain::CreateImageViews()
+    {
+        m_imageViews.reserve(m_images.size());
+        //for (int i = 0; i < m_images.size(); i++)
+        for(auto & image : m_images)
+        {
+            vk::ImageViewCreateInfo info;
+            vk::ComponentMapping  mapping;
+            vk::ImageSubresourceRange range;
+            range.setBaseMipLevel(0)
+                .setLevelCount(1)
+                .setBaseArrayLayer(0)
+                .setLayerCount(1)
+                .setAspectMask(vk::ImageAspectFlagBits::eColor);
+            info.setImage(image)
+                .setViewType(vk::ImageViewType::e2D)
+                .setComponents(mapping)
+                .setFormat(m_info.format.format)// 格式必须设置，否则报错
+                .setSubresourceRange(range);
+            
+            m_imageViews.push_back(Context::GetInstance()._device.createImageView(info));
+           
+        }
+        
     }
 }
