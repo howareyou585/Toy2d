@@ -1,5 +1,8 @@
 #include "../toy2d/context.hpp"
-
+#include "../toy2d/shader.hpp"
+#include "../toy2d/tool.hpp"
+#include "../toy2d/render_processor.hpp"
+//#include "../toy2d/tool.hpp"
 #include <iostream>
 #include <string>
 namespace toy2d
@@ -11,11 +14,24 @@ namespace toy2d
         m_instance.reset(new Context(extensions,cb));
         //创建swapchain
         m_instance->InitSwapChain(w, h);
+
+        //初始化shader
+        
+        //Shader::Init("../vert.spv", "../frag.spv");
+        Shader::Init("E:\\github\\Toy2d\\vert.spv", "E:\\github\\Toy2d\\frag.spv");
+        //初始化layout：在pipeline之前
+        Context::GetInstance().m_renderProcessor->InitLayout();
+        //初始化RenderPass：在pipeline之前
+        Context::GetInstance().m_renderProcessor->InitRenderPass();
+        //初始化渲染管线
+        Context::GetInstance().m_renderProcessor->InitPipeline(w,h);
         
     }
     void Context::Quit()
     {
+        GetInstance().m_renderProcessor.reset();
         GetInstance().DestorySwapChain();
+        Shader::Quit();
         m_instance.reset();
     }
     void Context::DestorySwapChain()
@@ -46,6 +62,7 @@ namespace toy2d
         QueryQueueFamilyIndices(); //为CreateDevice做准备
         CreateDevice();
         GetQueues();
+        this->m_renderProcessor.reset(new RenderProcess());
     }
     void Context::InitSwapChain(int w, int h)
     {

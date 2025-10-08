@@ -9,6 +9,7 @@
 #include "swapchain.hpp"
 namespace toy2d
 {
+    class RenderProcess;
     class Context final
     {
     public:
@@ -48,6 +49,7 @@ namespace toy2d
         vk::SurfaceKHR _surface;
         QueueFamliyIndices _queueFamilyIndices;
         std::unique_ptr<SwapChain>m_swapChain;
+        std::unique_ptr<RenderProcess>m_renderProcessor;
     private:
         static std::unique_ptr<Context> m_instance;
         vk::Instance _instance;
