@@ -23,6 +23,8 @@ namespace toy2d
         Context::GetInstance().m_renderProcessor->InitLayout();
         //初始化RenderPass：在pipeline之前
         Context::GetInstance().m_renderProcessor->InitRenderPass();
+        //在创建framebuffer前，要先创建RenderPass
+        Context::GetInstance().m_swapChain->CreateFrameBuffers(w, h);
         //初始化渲染管线
         Context::GetInstance().m_renderProcessor->InitPipeline(w,h);
         

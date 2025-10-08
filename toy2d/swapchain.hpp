@@ -22,10 +22,12 @@ namespace toy2d
 
         void GetImages();
         void CreateImageViews();
+        void CreateFrameBuffers(int w, int h);
     public:
         vk::SwapchainKHR m_swapChain;
         SwapChainInfo m_info;
         std::vector<vk::Image> m_images;
         std::vector<vk::ImageView> m_imageViews;
+        std::vector<vk::Framebuffer> m_framebuffers;
     };
 }

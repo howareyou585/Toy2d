@@ -1,5 +1,6 @@
 #include "../toy2d/swapchain.hpp"
 #include "../toy2d/context.hpp"
+#include "../toy2d/render_processor.hpp"
 namespace toy2d
 {
     SwapChain::SwapChain(int w, int h)
@@ -36,6 +37,10 @@ namespace toy2d
     }
     SwapChain::~SwapChain()
     {
+        for (auto frameBuffer : m_framebuffers)
+        {
+            Context::GetInstance()._device.destroyFramebuffer(frameBuffer);
+        }
         for (auto i = 0; i < m_imageViews.size(); i++)
         {
             Context::GetInstance()._device.destroyImageView(m_imageViews[i]);
@@ -105,5 +110,20 @@ namespace toy2d
            
         }
         
+    }
+
+    void SwapChain::CreateFrameBuffers(int w, int h)
+    {
+        m_framebuffers.resize(m_images.size());
+        for (int i = 0; i < m_framebuffers.size(); i++)
+        {
+            vk::FramebufferCreateInfo createInfo;
+            createInfo.setAttachments(m_imageViews[i])
+                .setWidth(w)
+                .setHeight(h)
+                .setRenderPass(Context::GetInstance().m_renderProcessor->m_renderPass)
+                .setLayers(1);
+            m_framebuffers[i] = Context::GetInstance()._device.createFramebuffer(createInfo);
+        }
     }
 }
