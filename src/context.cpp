@@ -16,9 +16,7 @@ namespace toy2d
     }
     void Context::Quit()
     {
-        GetInstance().m_renderProcessor.reset();
-        GetInstance().DestorySwapChain();
-        Shader::Quit();
+        
         m_instance.reset();
     }
     void Context::DestorySwapChain()

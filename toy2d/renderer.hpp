@@ -19,8 +19,11 @@ namespace toy2d
 		size_t m_currentFrame;
 		vk::CommandPool m_commandPool;
 		vk::CommandBuffer m_commandBuffer;
-		std::vector<vk::Semaphore> m_imageAvaliables;
+		/*std::vector<vk::Semaphore> m_imageAvaliables;
 		std::vector<vk::Semaphore> m_imageDrawFinishs;
-		std::vector <vk::Fence> m_cmdAvaliableFences;
+		std::vector <vk::Fence> m_cmdAvaliableFences*/;
+		vk::Semaphore m_imageAvaliable;
+		vk::Semaphore m_imageDrawFinish;
+		vk::Fence m_cmdAvaliableFence;
 	};
 }
