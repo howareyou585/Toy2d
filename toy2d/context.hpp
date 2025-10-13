@@ -10,11 +10,12 @@
 namespace toy2d
 {
     class RenderProcess;
+    class Renderer;
     class Context final
     {
     public:
         using GetSurfaceCallBack = std::function<VkSurfaceKHR(VkInstance)>;
-        static void Init(const std::vector<const char*>& extensions, GetSurfaceCallBack, int w, int h);
+        static void Init(const std::vector<const char*>& extensions, GetSurfaceCallBack/*, int w, int h*/);
         static void Quit();
         static Context &GetInstance();
         Context(const Context&) = delete;
@@ -22,6 +23,8 @@ namespace toy2d
         ~Context();
         void InitSwapChain(int w, int h);
         void DestorySwapChain();
+
+        void InitRenderer();
     public:
         struct QueueFamliyIndices final
         {
@@ -50,11 +53,13 @@ namespace toy2d
         QueueFamliyIndices _queueFamilyIndices;
         std::unique_ptr<SwapChain>m_swapChain;
         std::unique_ptr<RenderProcess>m_renderProcessor;
+        std::unique_ptr<Renderer>m_renderer;
+        vk::Queue _graphicsQueue;
+        vk::Queue _presentQueue;
     private:
         static std::unique_ptr<Context> m_instance;
         vk::Instance _instance;
-        vk::Queue _graphicsQueue;
-        vk::Queue _presentQueue;
+        
        
     };
 }

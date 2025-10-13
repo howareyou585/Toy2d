@@ -87,8 +87,10 @@ int main(int argc, char** argv) {
 	 				toy2d::ResizeSwapchainImage(event.window.data1, event.window.data2);
                  }*/
              }
+         toy2d::GetRenderer()->Render();
          }
 
+     
 	// 	renderer->StartRender();
     //     renderer->SetDrawColor(toy2d::Color{1, 0, 0});
 	// 	renderer->DrawTexture(toy2d::Rect{toy2d::Vec{x, y}, toy2d::Size{200, 300}}, *texture1);

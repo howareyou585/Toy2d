@@ -2,6 +2,7 @@
 #include "../toy2d/shader.hpp"
 #include "../toy2d/tool.hpp"
 #include "../toy2d/render_processor.hpp"
+#include "../toy2d/renderer.hpp"
 //#include "../toy2d/tool.hpp"
 #include <iostream>
 #include <string>
@@ -9,25 +10,9 @@ namespace toy2d
 {
     std::unique_ptr<Context> Context::m_instance = nullptr;
     void Context::Init(const std::vector<const char*>& extensions,
-        GetSurfaceCallBack cb,int w, int h)
+        GetSurfaceCallBack cb/*,int w, int h*/)
     {
         m_instance.reset(new Context(extensions,cb));
-        //创建swapchain
-        m_instance->InitSwapChain(w, h);
-
-        //初始化shader
-        
-        //Shader::Init("../vert.spv", "../frag.spv");
-        Shader::Init("E:\\github\\Toy2d\\vert.spv", "E:\\github\\Toy2d\\frag.spv");
-        //初始化layout：在pipeline之前
-        Context::GetInstance().m_renderProcessor->InitLayout();
-        //初始化RenderPass：在pipeline之前
-        Context::GetInstance().m_renderProcessor->InitRenderPass();
-        //在创建framebuffer前，要先创建RenderPass
-        Context::GetInstance().m_swapChain->CreateFrameBuffers(w, h);
-        //初始化渲染管线
-        Context::GetInstance().m_renderProcessor->InitPipeline(w,h);
-        
     }
     void Context::Quit()
     {
@@ -69,6 +54,10 @@ namespace toy2d
     void Context::InitSwapChain(int w, int h)
     {
         m_swapChain.reset(new SwapChain(w,h));
+    }
+    void Context::InitRenderer()
+    {
+        m_renderer.reset(new Renderer());
     }
     void Context::CreateInstance(const std::vector<const char*>& extensions)
     {
