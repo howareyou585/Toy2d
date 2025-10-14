@@ -18,12 +18,13 @@ namespace toy2d
 		static const int MAX_FRAMES_IN_FLIGHT ;
 		size_t m_currentFrame;
 		vk::CommandPool m_commandPool;
-		vk::CommandBuffer m_commandBuffer;
-		/*std::vector<vk::Semaphore> m_imageAvaliables;
+		
+		std::vector<vk::Semaphore> m_imageAvaliables;
 		std::vector<vk::Semaphore> m_imageDrawFinishs;
-		std::vector <vk::Fence> m_cmdAvaliableFences*/;
-		vk::Semaphore m_imageAvaliable;
+		std::vector <vk::Fence> m_cmdAvaliableFences;
+		std::vector<vk::CommandBuffer> m_commandBuffers;
+		/*vk::Semaphore m_imageAvaliable;
 		vk::Semaphore m_imageDrawFinish;
-		vk::Fence m_cmdAvaliableFence;
+		vk::Fence m_cmdAvaliableFence;*/
 	};
 }

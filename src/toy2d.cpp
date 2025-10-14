@@ -27,6 +27,7 @@ namespace toy2d
     }
     void Quit()
     {
+        Context::GetInstance()._device.waitIdle(); //同步操作：cpu 一直等，直到GPU操作完毕
         Context::GetInstance().m_renderer.reset();
         Context::GetInstance().m_renderProcessor.reset();
         Context::GetInstance().DestorySwapChain();
