@@ -7,59 +7,52 @@
 #include <functional>
 #include "vulkan/vulkan.hpp"
 #include "swapchain.hpp"
+#include "command_manager.hpp"
 namespace toy2d
 {
     class RenderProcess;
     class Renderer;
-    class Context final
-    {
+    class Context {
     public:
-        using GetSurfaceCallBack = std::function<VkSurfaceKHR(VkInstance)>;
-        static void Init(const std::vector<const char*>& extensions, GetSurfaceCallBack/*, int w, int h*/);
+        using GetSurfaceCallback = std::function<VkSurfaceKHR(VkInstance)>;
+        friend void Init(std::vector<const char*>&, GetSurfaceCallback, int, int);
+
+        static void Init(std::vector<const char*>& extensions, GetSurfaceCallback);
         static void Quit();
-        static Context &GetInstance();
-        Context(const Context&) = delete;
-        Context &operator=(const Context &) = delete;
+        static Context& Instance();
+
+        struct QueueInfo {
+            std::optional<std::uint32_t> graphicsIndex;
+            std::optional<std::uint32_t> presentIndex;
+        } queueInfo;
+
+        vk::Instance instance;
+        vk::PhysicalDevice phyDevice;
+        vk::Device device;
+        vk::Queue graphicsQueue;
+        vk::Queue presentQueue;
+        std::unique_ptr<Swapchain> swapchain;
+        std::unique_ptr<RenderProcess> renderProcess;
+        std::unique_ptr<CommandManager> commandManager;
+
+    private:
+        static Context* instance_;
+        vk::SurfaceKHR surface_;
+
+        GetSurfaceCallback getSurfaceCb_ = nullptr;
+
+        Context(std::vector<const char*>& extensions, GetSurfaceCallback);
         ~Context();
-        void InitSwapChain(int w, int h);
-        void DestorySwapChain();
 
-        void InitRenderer();
-    public:
-        struct QueueFamliyIndices final
-        {
-            std::optional<uint32_t> graphicsQueue;
-            std::optional<uint32_t> presentQueue; //À©Õ¹
-            operator bool() const
-            {
-                return graphicsQueue.has_value() &&
-                    presentQueue.has_value();
-            }
-        };
+        void initRenderProcess();
+        void initSwapchain(int windowWidth, int windowHeight);
+        void initGraphicsPipeline();
+        void initCommandPool();
 
-       
-    private:
-        Context(const std::vector<const char*>& extensions,GetSurfaceCallBack cb);
-        void CreateInstance(const std::vector<const char*>& extensions);
-        void PickupPhyiscalDevice();
-        
-        void CreateDevice();
-        void QueryQueueFamilyIndices();
-        void GetQueues();
-    public:
-        vk::PhysicalDevice _physicalDevice;
-        vk::Device _device;
-        vk::SurfaceKHR _surface;
-        QueueFamliyIndices _queueFamilyIndices;
-        std::unique_ptr<SwapChain>m_swapChain;
-        std::unique_ptr<RenderProcess>m_renderProcessor;
-        std::unique_ptr<Renderer>m_renderer;
-        vk::Queue _graphicsQueue;
-        vk::Queue _presentQueue;
-    private:
-        static std::unique_ptr<Context> m_instance;
-        vk::Instance _instance;
-        
-       
+        vk::Instance createInstance(std::vector<const char*>& extensions);
+        vk::PhysicalDevice pickupPhysicalDevice();
+        vk::Device createDevice(vk::SurfaceKHR);
+
+        void queryQueueInfo(vk::SurfaceKHR);
     };
 }

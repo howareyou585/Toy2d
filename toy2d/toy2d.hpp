@@ -4,10 +4,7 @@
 #include "renderer.hpp"
 namespace toy2d{
 
-    void Init(const std::vector<const char*>& extensions, Context::GetSurfaceCallBack, int w, int h);
+    void Init(std::vector<const char*>& extensions, Context::GetSurfaceCallback, int windowWidth, int windowHeight);
     void Quit();
-    inline Renderer* GetRenderer()
-    {
-        return (Context::GetInstance().m_renderer).get();
-    }
+    Renderer* GetRenderer();
 }

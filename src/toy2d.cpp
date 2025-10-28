@@ -4,34 +4,30 @@
 #include "toy2d/render_processor.hpp"
 namespace toy2d
 {
-    void Init(const std::vector<const char*>& extensions, Context::GetSurfaceCallBack cb,int w,int h)
-    {
-        Context::Init(extensions, cb);
-        //创建swapchain
-        Context::GetInstance().InitSwapChain(w, h);
+    std::unique_ptr<Renderer> renderer_;
 
+    void Init(std::vector<const char*>& extensions, Context::GetSurfaceCallback cb, int windowWidth, int windowHeight) {
+        Context::Init(extensions, cb);
+        auto& ctx = Context::Instance();
+        ctx.initSwapchain(windowWidth, windowHeight);
         //初始化shader
 
         //Shader::Init("../../../vert.spv", "../../../frag.spv");
-        Shader::Init("E:\\github\\Toy2d\\vert.spv", "E:\\github\\Toy2d\\frag.spv");
-        //初始化layout：在pipeline之前
-        Context::GetInstance().m_renderProcessor->InitLayout();
-        //初始化RenderPass：在pipeline之前
-        Context::GetInstance().m_renderProcessor->InitRenderPass();
-        //在创建framebuffer前，要先创建RenderPass
-        Context::GetInstance().m_swapChain->CreateFrameBuffers(w, h);
-        //初始化渲染管线
-        Context::GetInstance().m_renderProcessor->InitPipeline(w, h);
-        //初始化Renderer
-        Context::GetInstance().InitRenderer();
+        //Shader::Init("E:\\github\\Toy2d\\vert.spv", "E:\\github\\Toy2d\\frag.spv");
+        ctx.initRenderProcess();
+        ctx.initGraphicsPipeline();
+        ctx.swapchain->InitFramebuffers();
+        ctx.initCommandPool();
+
+        renderer_ = std::make_unique<Renderer>();
     }
-    void Quit()
-    {
-        Context::GetInstance()._device.waitIdle(); //同步操作：cpu 一直等，直到GPU操作完毕
-        Context::GetInstance().m_renderer.reset();
-        Context::GetInstance().m_renderProcessor.reset();
-        Context::GetInstance().DestorySwapChain();
-        Shader::Quit();
+
+    void Quit() {
+        renderer_.reset();
         Context::Quit();
+    }
+
+    Renderer* GetRenderer() {
+        return renderer_.get();
     }
 }

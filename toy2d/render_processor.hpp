@@ -5,17 +5,22 @@
 #include <vector>
 namespace toy2d
 {
-	class RenderProcess final
-	{
-	public:
-		void InitPipeline(int width, int height);
-		void InitRenderPass();
-		void InitLayout();
-		//void DestroyPipeline();
-		~RenderProcess();
-	public:
-		vk::Pipeline m_pipeline;
-		vk::PipelineLayout m_layout;
-		vk::RenderPass m_renderPass;
-	};
+    class RenderProcess {
+    public:
+        vk::Pipeline graphicsPipeline = nullptr;
+        vk::RenderPass renderPass = nullptr;
+        vk::PipelineLayout layout = nullptr;
+
+        RenderProcess();
+        ~RenderProcess();
+
+        void RecreateGraphicsPipeline(const std::vector<char>& vertexSource, const std::vector<char>& fragSource);
+        void RecreateRenderPass();
+
+    private:
+        vk::PipelineLayout createLayout();
+        vk::Pipeline createGraphicsPipeline(const std::vector<char>& vertexSource, const std::vector<char>& fragSource);
+        vk::RenderPass createRenderPass();
+    };
+
 }

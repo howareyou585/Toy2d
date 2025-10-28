@@ -2,32 +2,40 @@
 #include "vulkan/vulkan.hpp"
 namespace toy2d
 {
-    class SwapChain final
-    {
+    class Swapchain final {
     public:
-        struct  SwapChainInfo
-        {
-            vk::Extent2D imageExtent;
-            uint32_t imageCount;
-            vk::SurfaceFormatKHR format;
-            vk::SurfaceTransformFlagsKHR transform;
-            vk::PresentModeKHR present;
-
+        struct Image {
+            vk::Image image;
+            vk::ImageView view;
         };
-    public:
-        SwapChain(int w, int h);
-        ~SwapChain();
 
-        void QueryInfo(int w, int h);
+        vk::SurfaceKHR surface = nullptr;
+        vk::SwapchainKHR swapchain = nullptr;
+        std::vector<Image> images;
+        std::vector<vk::Framebuffer> framebuffers;
 
-        void GetImages();
-        void CreateImageViews();
-        void CreateFrameBuffers(int w, int h);
-    public:
-        vk::SwapchainKHR m_swapChain;
-        SwapChainInfo m_info;
-        std::vector<vk::Image> m_images;
-        std::vector<vk::ImageView> m_imageViews;
-        std::vector<vk::Framebuffer> m_framebuffers;
+        const auto& GetExtent() const { return surfaceInfo_.extent; }
+        const auto& GetFormat() const { return surfaceInfo_.format; }
+
+        Swapchain(vk::SurfaceKHR, int windowWidth, int windowHeight);
+        ~Swapchain();
+
+        void InitFramebuffers();
+
+    private:
+        struct SurfaceInfo {
+            vk::SurfaceFormatKHR format;
+            vk::Extent2D extent;
+            std::uint32_t count;
+            vk::SurfaceTransformFlagBitsKHR transform;
+        } surfaceInfo_;
+
+        vk::SwapchainKHR createSwapchain();
+
+        void querySurfaceInfo(int windowWidth, int windowHeight);
+        vk::SurfaceFormatKHR querySurfaceeFormat();
+        vk::Extent2D querySurfaceExtent(const vk::SurfaceCapabilitiesKHR& capability, int windowWidth, int windowHeight);
+        void createImageAndViews();
+        void createFramebuffers();
     };
 }

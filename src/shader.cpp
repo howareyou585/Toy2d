@@ -26,7 +26,7 @@ namespace toy2d
         vector<char> vecVertex = ReadWholeFile(vertexSource);
         createInfo.codeSize = vecVertex.size();
         createInfo.pCode = (const uint32_t*)(vecVertex.data());
-        auto& device = Context::GetInstance()._device;
+        auto& device = Context::Instance().device;
         m_vertexModule = device.createShaderModule(createInfo);
 
         vector<char> vecFrag = ReadWholeFile(fragSource);
@@ -37,7 +37,7 @@ namespace toy2d
     }
     Shader::~Shader()
     {
-        auto& device = Context::GetInstance()._device;
+        auto& device = Context::Instance().device;
         device.destroyShaderModule(m_vertexModule);
         device.destroyShaderModule(m_fragmentModule);
     }
