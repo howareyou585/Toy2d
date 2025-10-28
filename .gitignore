@@ -3,3 +3,5 @@ build
 /build1/.cmake/api/v1/reply
 /build1
 /build_x64
+/frag.spv
+/vert.spv
