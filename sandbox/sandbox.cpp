@@ -29,7 +29,11 @@ int main(int argc, char** argv) {
     unsigned int count;
     SDL_Vulkan_GetInstanceExtensions(window, &count, nullptr);
     std::vector<const char*> extensions(count);
+    
     SDL_Vulkan_GetInstanceExtensions(window, &count, extensions.data());
+    for (const auto& ext : extensions) {
+        std::cout << ext << std::endl;
+    }
 
     toy2d::Init(extensions,
         [&](VkInstance instance) {

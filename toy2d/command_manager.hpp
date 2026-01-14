@@ -12,7 +12,10 @@ namespace toy2d
 		std::vector<vk::CommandBuffer> CreateCommandBuffers(std::uint32_t count);
 		void ResetCmds();
 	private:
+		//vk::CommandPool pool_;
+		//定义CommandPool 对象
 		vk::CommandPool pool_;
+		//
 		vk::CommandPool createCommandPool();
 	};
 }

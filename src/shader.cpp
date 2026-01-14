@@ -42,8 +42,8 @@ namespace toy2d
         device.destroyShaderModule(m_fragmentModule);
     }
 
-    std::vector<vk::PipelineShaderStageCreateInfo> Shader::GetStages()
-    {
+    const std::vector<vk::PipelineShaderStageCreateInfo>& Shader::GetStages() const
+    { 
         return m_stages;
     }
 

@@ -13,7 +13,7 @@ namespace toy2d
 		static void Quit();
 		static Shader& GetInstance();
 	public:
-		std::vector<vk::PipelineShaderStageCreateInfo> GetStages();
+		const std::vector<vk::PipelineShaderStageCreateInfo> & GetStages()const;
 	public:
 		vk::ShaderModule m_vertexModule;
 		vk::ShaderModule m_fragmentModule;

@@ -6,6 +6,7 @@
 //#include "../toy2d/tool.hpp"
 #include <iostream>
 #include <string>
+#include <set>
 namespace toy2d
 {
     Context* Context::instance_ = nullptr;
@@ -67,20 +68,31 @@ namespace toy2d
     }
 
     vk::PhysicalDevice Context::pickupPhysicalDevice() {
-        auto devices = instance.enumeratePhysicalDevices();
-        if (devices.size() == 0) {
+		//1.从实例中枚举物理设备
+        auto phyDevices = instance.enumeratePhysicalDevices();
+        if (phyDevices.size() == 0) {
             std::cout << "you don't have suitable device to support vulkan" << std::endl;
             exit(1);
         }
-        return devices[0];
+		std::cout << "found " << phyDevices.size() << " physical devices" << std::endl;
+        for(const auto& phyDevice : phyDevices) {
+			//1.1打印设备信息
+			vk::PhysicalDeviceProperties deviceProperties = phyDevice.getProperties();
+			std::cout << "device name: " << deviceProperties.deviceName << std::endl;
+			std::cout << "device type: " << vk::to_string(deviceProperties.deviceType) << std::endl;
+            //2.todo....
+
+		}
+        return phyDevices[0];
     }
 
     vk::Device Context::createDevice(vk::SurfaceKHR surface) {
         vk::DeviceCreateInfo deviceCreateInfo;
         queryQueueInfo(surface);
+        //std::array extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME ,VK_EXT_DEBUG_MARKER_EXTENSION_NAME };
         std::array extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
         deviceCreateInfo.setPEnabledExtensionNames(extensions);
-
+        
         std::vector<vk::DeviceQueueCreateInfo> queueInfos;
         float priority = 1;
         if (queueInfo.graphicsIndex.value() == queueInfo.presentIndex.value()) {
@@ -91,14 +103,23 @@ namespace toy2d
             queueInfos.push_back(queueCreateInfo);
         }
         else {
-            vk::DeviceQueueCreateInfo queueCreateInfo;
+            std::set<uint32_t> uniqueQueueFamilies = { queueInfo.graphicsIndex.value(), queueInfo.presentIndex.value() };
+            for (uint32_t queueFamily : uniqueQueueFamilies)
+            {
+                vk::DeviceQueueCreateInfo queueCreateInfo;
+                queueCreateInfo.setPQueuePriorities(&priority);
+                queueCreateInfo.setQueueCount(1);
+                queueCreateInfo.setQueueFamilyIndex(queueFamily);
+                queueInfos.push_back(queueCreateInfo);
+            }
+            /*vk::DeviceQueueCreateInfo queueCreateInfo;
             queueCreateInfo.setPQueuePriorities(&priority);
             queueCreateInfo.setQueueCount(1);
             queueCreateInfo.setQueueFamilyIndex(queueInfo.graphicsIndex.value());
             queueInfos.push_back(queueCreateInfo);
 
             queueCreateInfo.setQueueFamilyIndex(queueInfo.presentIndex.value());
-            queueInfos.push_back(queueCreateInfo);
+            queueInfos.push_back(queueCreateInfo);*/
         }
         deviceCreateInfo.setQueueCreateInfos(queueInfos);
 
@@ -106,7 +127,31 @@ namespace toy2d
     }
 
     void Context::queryQueueInfo(vk::SurfaceKHR surface) {
-        auto queueProps = phyDevice.getQueueFamilyProperties();
+		//查询物理设备的队列族属性
+		uint32_t queueFamilyCount = 0;
+        
+         auto vecQueueFamilyProperties = this->phyDevice.getQueueFamilyProperties();
+         for (int i = 0; i < vecQueueFamilyProperties.size(); i++)
+         {
+             const auto& queueFamilyProperty = vecQueueFamilyProperties[i];
+             if (queueFamilyProperty.queueFlags & vk::QueueFlagBits::eGraphics) {
+                 this->queueInfo.graphicsIndex = i;
+             }
+             if (phyDevice.getSurfaceSupportKHR(i, surface)) 
+             {
+                 this->queueInfo.presentIndex = i;
+             }
+             if(this->queueInfo.graphicsIndex.has_value() && this->queueInfo.presentIndex.has_value())
+             {
+                 break;
+			 }
+         }
+         if (this->queueInfo.presentIndex == -1 || this->queueInfo.graphicsIndex == -1)
+         {
+			 throw std::runtime_error("failed to find suitable queue family!");
+             //std::cout << "queryQueueInfo failed!" << std::endl;
+         }
+        /*auto queueProps = phyDevice.getQueueFamilyProperties();
         for (int i = 0; i < queueProps.size(); i++) {
             if (queueProps[i].queueFlags & vk::QueueFlagBits::eGraphics) {
                 queueInfo.graphicsIndex = i;
@@ -120,7 +165,7 @@ namespace toy2d
                 queueInfo.presentIndex.has_value()) {
                 break;
             }
-        }
+        }*/
     }
 
     void Context::initSwapchain(int windowWidth, int windowHeight) {
@@ -132,8 +177,8 @@ namespace toy2d
     }
 
     void Context::initGraphicsPipeline() {
-        auto vertexSource = ReadWholeFile("E:\\github\\Toy2d\\build_x64\\sandbox\\Debug\\vert.spv");
-        auto fragSource = ReadWholeFile("E:\\github\\Toy2d\\build_x64\\sandbox\\Debug\\frag.spv");
+        auto vertexSource = ReadWholeFile("E:\\github\\Toy2d_self\\build\\sandbox\\Debug\\vert.spv");
+        auto fragSource = ReadWholeFile("E:\\github\\Toy2d_self\\build\\sandbox\\Debug\\frag.spv");
         renderProcess->RecreateGraphicsPipeline(vertexSource, fragSource);
     }
 

@@ -10,10 +10,11 @@ namespace toy2d
         Context::Init(extensions, cb);
         auto& ctx = Context::Instance();
         ctx.initSwapchain(windowWidth, windowHeight);
-        //³õÊ¼»¯shader
+        //ï¿½ï¿½Ê¼ï¿½ï¿½shader
 
         //Shader::Init("../../../vert.spv", "../../../frag.spv");
         //Shader::Init("E:\\github\\Toy2d\\vert.spv", "E:\\github\\Toy2d\\frag.spv");
+        Shader::Init("E:\\github\\Toy2d_self\\build\\sandbox\\Debug\\vert.spv", "E:\\github\\Toy2d_self\\build\\sandbox\\Debug\\frag.spv");
         ctx.initRenderProcess();
         ctx.initGraphicsPipeline();
         ctx.swapchain->InitFramebuffers();

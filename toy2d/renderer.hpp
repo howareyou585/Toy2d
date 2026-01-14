@@ -2,6 +2,7 @@
 #include "vulkan/vulkan.hpp"
 namespace toy2d
 {
+    class Buffer;
     class Renderer {
     public:
         Renderer(int maxFlightCount = 2);
@@ -17,9 +18,12 @@ namespace toy2d
         std::vector<vk::Semaphore> renderFinishSems_;
         std::vector<vk::CommandBuffer> cmdBufs_;
 
+		std::unique_ptr<Buffer> vertexBuffer_;
         void createFences();
         void createSemaphores();
         void createCmdBuffers();
+        void createVertextBuffer();
+        void bufferVertexData();
     };
 
 }
