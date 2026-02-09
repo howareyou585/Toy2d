@@ -186,6 +186,25 @@ namespace toy2d
         commandManager = std::make_unique<CommandManager>();
     }
 
+    void Context::initSampler()
+    {
+		auto& device = Context::Instance().device;
+		vk::SamplerCreateInfo samplerCreateInfo;
+        samplerCreateInfo.setMagFilter(vk::Filter::eLinear)
+            .setMinFilter(vk::Filter::eLinear)
+            .setAddressModeU(vk::SamplerAddressMode::eRepeat)
+            .setAddressModeV(vk::SamplerAddressMode::eRepeat)
+            .setAddressModeW(vk::SamplerAddressMode::eRepeat)
+            .setAnisotropyEnable(VK_FALSE)
+
+            .setBorderColor(vk::BorderColor::eIntOpaqueBlack)
+            .setUnnormalizedCoordinates(VK_FALSE)
+            .setCompareEnable(VK_FALSE)
+            .setMipmapMode(vk::SamplerMipmapMode::eLinear);
+         
+        this->m_sampler = device.createSampler(samplerCreateInfo);
+    }
+
     Context::~Context() {
         commandManager.reset();
         renderProcess.reset();

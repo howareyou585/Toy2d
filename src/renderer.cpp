@@ -1,9 +1,11 @@
 #include "../toy2d/renderer.hpp"
 #include "../toy2d/context.hpp"
-#include "../toy2d/vertex.hpp"
+//#include "../toy2d/vertex.hpp"
+#include "../toy2d/math.hpp"
 #include "../toy2d/buffer.hpp"
 #include "../toy2d/render_processor.hpp"
-
+#include "../toy2d/descriptor_manager.hpp"
+#include "../toy2d/math.hpp"
 
 namespace toy2d {
 
@@ -20,6 +22,10 @@ namespace toy2d {
         createCmdBuffers();
         createVertextBuffer();
         bufferVertexData();
+        createUniformBuffers(maxFlightCount);
+        this->m_vecDescriptorSets = DescriptorSetManager::Instance().AllocateBufferSets(maxFlightCount);
+        //初始化相机投影矩阵和视图矩阵
+        this->intiMats();
     }
 
     Renderer::~Renderer() {
@@ -38,6 +44,13 @@ namespace toy2d {
         {
             device.destroyFence(fence);
         }
+    }
+
+    void Renderer::setProjection(int right, int left, int bottom, int top, int near, int far)
+    {
+        this->m_projectMat = Mat4::CreateOrtho(left, right, top, bottom, near, far);
+        this->bufferMVPData();
+
     }
 
     void Renderer::DrawTriangle() {
@@ -68,6 +81,7 @@ namespace toy2d {
         //1.begin info
         vk::CommandBufferBeginInfo cmdBufferBeginInfo;
 		cmdBufferBeginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+        
 		cmdBufs_[curFrame_].begin(cmdBufferBeginInfo);
 
 		//2.render pass begin info
@@ -86,8 +100,19 @@ namespace toy2d {
 
 		cmdBufs_[curFrame_].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
 		cmdBufs_[curFrame_].bindPipeline(vk::PipelineBindPoint::eGraphics, ctx.renderProcess->graphicsPipeline);
+
         vk::DeviceSize offset = 0;
         cmdBufs_[curFrame_].bindVertexBuffers(0, vertexBuffer_->buffer, offset);
+        //当pipeline 指定了动态设置viewport 和 scissor，需要在此处理动态视口和裁剪设置。
+        //设置视口和裁剪：
+        //vk::Viewport viewport(0.f, 0.f,
+        //    static_cast<float>(swapchain->GetExtent().width), static_cast<float>(swapchain->GetExtent().height),
+        //    0.f, 1.0f);
+        ////vk::Rect2D scissor{ {0, 0}, swapchainExtent };
+        //
+        //
+        //cmdBufs_[curFrame_].setViewport(0, viewport);
+        //cmdBufs_[curFrame_].setScissor(0, renderArea);
         cmdBufs_[curFrame_].draw(3, 1, 0, 0);
         
         cmdBufs_[curFrame_].endRenderPass();
@@ -206,6 +231,28 @@ namespace toy2d {
         }
     }
 
+    void Renderer::createUniformBuffers(int flightcount)
+    {
+        this->m_vecUniformBuffer.resize(flightcount);
+        size_t size = sizeof(Mat4) * 2;
+        for (auto& buffer : this->m_vecUniformBuffer)
+        {
+			
+            buffer.reset(new Buffer(size, 
+                vk::BufferUsageFlagBits::eTransferSrc,
+                vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent));
+                
+        }
+		this->m_vecDeviceUniformBuffer.resize(flightcount);
+        for(auto& buffer : this->m_vecDeviceUniformBuffer)
+        {
+            buffer.reset(new Buffer(
+                size,
+                vk::BufferUsageFlagBits::eTransferDst|vk::BufferUsageFlagBits::eUniformBuffer,
+                vk::MemoryPropertyFlagBits::eDeviceLocal));
+		}
+    }
+
     void Renderer::createVertextBuffer()
     {
 		vertexBuffer_.reset(new Buffer(sizeof(vertices),
@@ -219,5 +266,70 @@ namespace toy2d {
         );
 		memcpy(ptr, vertices.data(), sizeof(vertices));
 		Context::Instance().device.unmapMemory(vertexBuffer_->memory);
+    }
+
+    void Renderer::intiMats()
+    {
+        this->m_projectMat = Mat4::CreateIdentity();
+        this->m_viewMat= Mat4::CreateIdentity();
+    }
+
+    void Renderer::updateDescriptorSet() 
+    {
+        auto& device = Context::Instance().device;
+        for (int i = 0; i < this->m_vecDescriptorSets.size(); i++)
+        {
+            vk::DescriptorBufferInfo descBufferInfo;
+            descBufferInfo.setBuffer(this->m_vecUniformBuffer[i]->buffer)
+                .setOffset(0)
+                .setRange(sizeof(Mat4) * 2);
+                
+                vk::WriteDescriptorSet writeDescSet;
+
+            writeDescSet.setBufferInfo(descBufferInfo)
+                .setDstSet(m_vecDescriptorSets[i].set)
+                .setDstBinding(0)
+                .setDstArrayElement(0)
+                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+                .setDescriptorCount(1);
+            
+            device.updateDescriptorSets(
+                writeDescSet,
+                {}
+            );
+        }
+		
+    }
+
+    void Renderer::bufferMVPData()
+    {
+       /* struct Matrices
+        {
+            Mat4 projection;
+            Mat4 view;
+        } matrices;*/
+        auto& device = Context::Instance().device;
+        for (int i = 0; i < m_vecUniformBuffer.size(); i++)
+        {
+            auto& uniformBuffer = m_vecUniformBuffer[i];
+            memcpy(uniformBuffer->m_data, (void*)(&m_projectMat), sizeof(Mat4));
+            memcpy(((char*)uniformBuffer->m_data) + sizeof(Mat4), (void*)(&m_viewMat), sizeof(Mat4));
+            transformBuffer2Device(*uniformBuffer, *m_vecDeviceUniformBuffer[i], 0, 0, uniformBuffer->size);
+        }
+    }
+
+    void Renderer::transformBuffer2Device(Buffer& src, Buffer& dst, size_t srcOffset, size_t destOffset, size_t size)
+    {
+        auto& commandManager = Context::Instance().commandManager;
+        auto& graphicsQueue = Context::Instance().graphicsQueue;
+        commandManager->ExecuteCmd(graphicsQueue, [&](vk::CommandBuffer& cmdbuffer) {
+            vk::BufferCopy region;
+            region.setSrcOffset(srcOffset)
+                .setDstOffset(destOffset)
+                .setSize(size);
+            cmdbuffer.copyBuffer(src.buffer, dst.buffer, region);
+            }
+        );
+
     }
 }

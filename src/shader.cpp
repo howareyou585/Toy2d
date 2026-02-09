@@ -34,6 +34,7 @@ namespace toy2d
         createInfo.pCode = (const uint32_t*)(vecFrag.data());
         m_fragmentModule = device.createShaderModule(createInfo);
         InitStage();
+        InitDescriptorSetLayouts();
     }
     Shader::~Shader()
     {
@@ -56,5 +57,33 @@ namespace toy2d
         m_stages[1].setStage(vk::ShaderStageFlagBits::eFragment)
             .setModule(m_fragmentModule)
             .setPName("main");
+    }
+
+    void Shader::InitDescriptorSetLayouts()
+    {
+        auto& device = Context::Instance().device;
+        vector<vk::DescriptorSetLayoutBinding>bindings;
+        bindings.resize(1);
+        bindings[0].setBinding(0)
+            .setDescriptorCount(1)
+            .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+            .setStageFlags(vk::ShaderStageFlagBits::eVertex);
+        vk::DescriptorSetLayoutCreateInfo createInfo;
+        createInfo.setBindings(bindings);
+        this->m_layouts.push_back(device.createDescriptorSetLayout(createInfo));
+
+        bindings.resize(1);
+
+        bindings[0].setBinding(0)
+            .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+            .setDescriptorCount(1)
+            .setStageFlags(vk::ShaderStageFlagBits::eFragment);
+        createInfo.setBindings(bindings);
+        
+        this->m_layouts.push_back(device.createDescriptorSetLayout(createInfo));
+    }
+    const std::vector<vk::DescriptorSetLayout>& Shader::GetDescriptSetLayouts()const
+    {
+        return this->m_layouts;
     }
 }

@@ -1,8 +1,8 @@
 #include "../toy2d/render_processor.hpp"
 #include "../toy2d/shader.hpp"
 #include "../toy2d/context.hpp"
-#include "../toy2d/vertex.hpp"
-
+//#include "../toy2d/vertex.hpp"
+#include "../toy2d/math.hpp"
 namespace toy2d
 {
     RenderProcess::RenderProcess() {
@@ -69,8 +69,8 @@ namespace toy2d
 
         // 2. vertex input
 		vk::PipelineVertexInputStateCreateInfo vertexInputCreateInfo;
-        auto attribute = Vertex::getAttribute();
-		auto binding = Vertex::getBinding();
+        auto attribute = Vec::GetAttributeDescriptions();
+		auto binding = Vec::GetBindingDescriptions();
         vertexInputCreateInfo.setVertexAttributeDescriptions( attribute )
             .setVertexBindingDescriptions(binding);
       
@@ -110,6 +110,14 @@ namespace toy2d
             .setViewports(viewport)
             .setScissorCount(1)
             .setScissors(rect);
+        //动态设置viewport 和 scissor
+        /*
+        vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo;
+        std::array<vk::DynamicState, 2> aryDynamicState = { vk::DynamicState::eViewport,
+        vk::DynamicState::eScissor};
+        
+
+        dynamicStateCreateInfo.setDynamicStates(aryDynamicState);*/
 
         // 5. rasteraizer
         /*vk::PipelineRasterizationStateCreateInfo rasterInfo;
@@ -181,6 +189,8 @@ namespace toy2d
             .setPRasterizationState(&rasterStateCreateInfo)
             .setPMultisampleState(&multisampleCreateInfo)
             .setPColorBlendState(&colorBlendStateCreateInfo)
+            .setLayout(this->layout)
+            //.setPDynamicState(&dynamicStateCreateInfo) //当viewport大小动态调整时，使用
            
             .setRenderPass(renderPass);
         

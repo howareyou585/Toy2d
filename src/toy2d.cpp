@@ -2,6 +2,7 @@
 #include "toy2d/context.hpp"
 #include "toy2d/shader.hpp"
 #include "toy2d/render_processor.hpp"
+#include "toy2d/descriptor_manager.hpp"
 namespace toy2d
 {
     std::unique_ptr<Renderer> renderer_;
@@ -19,12 +20,16 @@ namespace toy2d
         ctx.initGraphicsPipeline();
         ctx.swapchain->InitFramebuffers();
         ctx.initCommandPool();
-
+		ctx.initSampler();// 初始化纹理采样器
+        int maxFlightCount = 2;
+        DescriptorSetManager::Init(maxFlightCount);
         renderer_ = std::make_unique<Renderer>();
+        renderer_->setProjection(windowWidth, 0, 0, windowHeight, -1, 1);
     }
 
     void Quit() {
         renderer_.reset();
+        DescriptorSetManager::Quit();
         Context::Quit();
     }
 

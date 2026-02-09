@@ -31,9 +31,11 @@ namespace toy2d
         vk::Device device;
         vk::Queue graphicsQueue;
         vk::Queue presentQueue;
+        vk::Sampler m_sampler;
         std::unique_ptr<Swapchain> swapchain;
         std::unique_ptr<RenderProcess> renderProcess;
         std::unique_ptr<CommandManager> commandManager;
+        
 
     private:
         static Context* instance_;
@@ -48,6 +50,7 @@ namespace toy2d
         void initSwapchain(int windowWidth, int windowHeight);
         void initGraphicsPipeline();
         void initCommandPool();
+		void initSampler();
 
         vk::Instance createInstance(std::vector<const char*>& extensions);
         vk::PhysicalDevice pickupPhysicalDevice();

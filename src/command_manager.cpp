@@ -58,4 +58,20 @@ namespace toy2d {
         return CreateCommandBuffers(1)[0];
     }
 
+    void CommandManager::ExecuteCmd(const vk::Queue& queue, RecordCmdFunc func)
+    {
+        vk::CommandBuffer commandBuffer = CreateOneCommandBuffer();
+        vk::CommandBufferBeginInfo cmdBeginInfo;
+        cmdBeginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+        commandBuffer.begin(cmdBeginInfo);
+        if(func)
+            func(commandBuffer);
+        commandBuffer.end();
+        vk::SubmitInfo submitInfo;
+        submitInfo.setCommandBuffers(commandBuffer);
+        queue.submit(submitInfo);
+        queue.waitIdle();
+        auto& device = Context::Instance().device;
+        device.waitIdle();
+    }
 }
